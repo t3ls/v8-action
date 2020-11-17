@@ -52,6 +52,7 @@ jobs:
         source ~/.bash_profile
         fetch v8
         cd v8
+        ./build/install-build-deps.sh --no-chromeos-fonts
     
     # checkout source code
     - name: checkout v8
@@ -60,23 +61,22 @@ jobs:
         cd v8
         git reset --hard $COMMIT
         cd ..
-        
-    # apply diff file
-    - name: patch v8
-      if: env.PATCH_FLAG == 'true' && !cancelled()
-      run: |
-        wget https://raw.githubusercontent.com/t3ls/v8-action/master/.github/workflows/patch.diff -o patch.diff
-        cd v8
-        git apply ../patch.diff
-        cd ..
-        
+          
     - name: sync v8 deps
       run: |
         source ~/.bash_profile
         cd v8
         gclient sync
-        ./build/install-build-deps.sh --no-chromeos-fonts
-        
+           
+    # apply diff file
+    - name: patch v8
+      if: env.PATCH_FLAG == 'true' && !cancelled()
+      run: |
+        curl -fsSL git.io/Jkl6U > patch.diff
+        cd v8
+        git apply ../patch.diff
+        cd ..
+   
     - name: build v8 release
       if: env.BUILD_RELEASE == 'true' && !cancelled()
       run: |
