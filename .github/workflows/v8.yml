@@ -1,6 +1,7 @@
 #===================================================
 # Description: Build v8 enginer using GitHub Actions
 # Author: t1an5t
+# Edited: t3ls
 #===================================================
 
 
@@ -13,11 +14,15 @@ on:
   #   types: started
 
 env:
-  PATCH_FLAG: false
-  COMMIT: 0
-  DEPOT_UPLOAD: false
+  CHECKOUT_FLAG: true
+  PATCH_FLAG: true
+  BUILD_RELEASE: true
+  BUILD_DEBUG: false
+  COMMIT: 6dc88c191f5ecc5389dc26efa3ca0907faef3598
+  DEPOT_UPLOAD: true
   SRC_UPLOAD: true
-  BINARY_UPLOAD: false
+  DIFF_URL: https://raw.githubusercontent.com/t3ls/v8-action/master/.github/workflows/patch.diff
+
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -34,7 +39,7 @@ jobs:
     - name: init env
       run: |
         sudo apt-get update
-        sudo apt-get -y install pkg-config git subversion curl wget build-essential python xz-utils zip p7zip-full
+        sudo apt-get -y install pigz pkg-config git subversion curl wget build-essential python xz-utils zip p7zip-full
     
     # get depot_tools
     - name: depot_tools
@@ -49,30 +54,51 @@ jobs:
         fetch v8
         cd v8
     
-    # patch source code
-    - name: patch v8
-      if: env.PATCH_FLAG == 'true' && !cancelled()
+    # checkout source code
+    - name: checkout v8
+      if: env.CHECKOUT_FLAG == 'true' && !cancelled()
       run: |
         cd v8
         git reset --hard $COMMIT
+        
+    # apply diff file
+    - name: patch v8
+      if: env.PATCH_FLAG == 'true' && !cancelled()
+      run: |
+        wget $DIFF_URL -o patch.diff
+        git apply ../patch.diff
         cd ..
         
-    - name: build v8
+    - name: sync v8 deps
       run: |
         source ~/.bash_profile
         gclient sync -f
-    
+        
+    - name: build v8 release
+      if: env.BUILD_RELEASE == 'true' && !cancelled()
+      run: |
+        cd v8
+        tools/dev/gm.py x64.release
+        cd ..
+        
+    - name: build v8 debug
+      if: env.BUILD_DEBUG == 'true' && !cancelled()
+      run: |
+        cd v8
+        tools/dev/gm.py x64.debug
+        cd ..
+        
     # compress this file
     - name: zip depot_tools
       if: env.DEPOT_UPLOAD == 'true' && !cancelled()
       run: |
-        zip -q -r depot_tools.zip depot_tools
+        tar -Ipigz -cf depot_tools.tar.gz depot_tools
         
     # 7zip v8 src
     - name: 7zip v8_src
       run: |
-        zip -q -r v8.zip v8
-        7z a v8.7z ./v8.zip -v2048m
+        tar -Ipigz -cf v8.tar.gz v8
+        7z a v8.7z ./v8.tar.gz -v2048m
     
     # upload depot_tools.zip to cowtransfer
     - name: upload depot_tools
