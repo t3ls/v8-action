@@ -73,7 +73,9 @@ jobs:
     - name: sync v8 deps
       run: |
         source ~/.bash_profile
+        cd v8
         gclient sync
+        ./build/install-build-deps.sh --no-chromeos-fonts
         
     - name: build v8 release
       if: env.BUILD_RELEASE == 'true' && !cancelled()
