@@ -47,7 +47,6 @@ jobs:
     # get depot_tools
     - name: depot_tools
       run: |
-        7z -mmt
         git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
         echo export PATH=\"\$PATH:`pwd`/depot_tools/\" >> ~/.bash_profile
     
@@ -108,7 +107,7 @@ jobs:
     - name: compress v8
       run: |
         tar -Ipigz -cf v8.tar.gz v8
-        7z a v8.7z ./v8.tar.gz -v2048m
+        7z a v8.7z ./v8.tar.gz -v2048m -mmt2
     
     # upload depot_tools.zip to cowtransfer
     - name: upload depot_tools
