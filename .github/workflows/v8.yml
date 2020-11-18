@@ -125,7 +125,7 @@ jobs:
     - name: upload depot_tools
       if: env.DEPOT_UPLOAD == 'true' && !cancelled()
       run: |
-        curl -L "https://github.com/Mikubill/transfer/releases/download/$TRANSFER_BRANCH/transfer_$TRANSFER_BRANCH_linux_amd64.tar.gz" | tar xz
+        curl -L "https://github.com/Mikubill/transfer/releases/download/$TRANSFER_BRANCH/transfer_${TRANSFER_BRANCH:1}_linux_amd64.tar.gz" | tar xz
         printf "\nTransfer Downloded.\n\n"
         ./transfer $TRANSFER_TOOL --block 2621440 -s -p 64 --no-progress depot_tools.tar.gz 2>&1 | tee cowtransfer.log
         echo "::warning file=cowtransfer.com::$(cat cowtransfer.log | grep https)"
@@ -134,7 +134,7 @@ jobs:
     - name: upload v8
       if: env.SRC_UPLOAD == 'true' && !cancelled()
       run: |
-        curl -L "https://github.com/Mikubill/transfer/releases/download/$TRANSFER_BRANCH/transfer_$TRANSFER_BRANCH_linux_amd64.tar.gz" | tar xz
+        curl -L "https://github.com/Mikubill/transfer/releases/download/$TRANSFER_BRANCH/transfer_${TRANSFER_BRANCH:1}_linux_amd64.tar.gz" | tar xz
         printf "\nTransfer Downloded.\n\n"
         echo "for file in ./*;do" > compress.sh
         echo "if test -f \$file;then" >> compress.sh
