@@ -16,7 +16,7 @@ on:
 env:
   CHECKOUT_FLAG: true
   PATCH_FLAG: true
-  BUILD_RELEASE: true
+  BUILD_RELEASE: false
   BUILD_DEBUG: false
   # transfer工具使用的分支，不能用可以改成master
   TRANSFER_BRANCH: v0.4.8-beta
@@ -122,8 +122,7 @@ jobs:
       if: env.SRC_UPLOAD == 'true' && !cancelled()
       run: |
         curl -fsSL https://raw.githubusercontent.com/Mikubill/transfer/$TRANSFER_BRANCH/install.sh | sh
-        echo "#!/usr/bin/env bash" > compress.sh
-        echo "for file in ./*;do" >> compress.sh
+        echo "for file in ./*;do" > compress.sh
         echo "if test -f \$file;then" >> compress.sh
         echo "tmp=\${file##*/}" >> compress.sh
         echo "if [[ \"\$tmp\" == v8.7z.* ]];then" >> compress.sh
@@ -133,4 +132,4 @@ jobs:
         echo "fi" >> compress.sh
         echo "fi" >> compress.sh
         echo "done" >> compress.sh
-        sh ./compress.sh
+        chmod +x ./compress.sh && ./compress.sh
