@@ -16,7 +16,7 @@ on:
 env:
   CHECKOUT_FLAG: true
   PATCH_FLAG: true
-  BUILD_RELEASE: false
+  BUILD_RELEASE: true
   BUILD_DEBUG: false
   # transfer工具使用的分支，不能用可以改成master
   TRANSFER_BRANCH: v0.4.8-beta
