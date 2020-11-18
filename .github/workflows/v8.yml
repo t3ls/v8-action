@@ -47,6 +47,7 @@ jobs:
     # get depot_tools
     - name: depot_tools
       run: |
+        7z -mmt
         git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
         echo export PATH=\"\$PATH:`pwd`/depot_tools/\" >> ~/.bash_profile
     
@@ -114,7 +115,7 @@ jobs:
       if: env.DEPOT_UPLOAD == 'true' && !cancelled()
       run: |
         curl -fsSL https://raw.githubusercontent.com/Mikubill/transfer/$TRANSFER_BRANCH/install.sh | sh
-        ./transfer $TRANSFER_TOOL --block 2621440 -s -p 64 --no-progress depot_tools.zip 2>&1 | tee cowtransfer.log
+        ./transfer $TRANSFER_TOOL --block 2621440 -s -p 64 --no-progress depot_tools.tar.gz 2>&1 | tee cowtransfer.log
         echo "::warning file=cowtransfer.com::$(cat cowtransfer.log | grep https)"
    
     # upload v8.zip to cowtransfer
@@ -126,6 +127,7 @@ jobs:
         echo "if test -f \$file;then" >> compress.sh
         echo "tmp=\${file##*/}" >> compress.sh
         echo "if [[ \"\$tmp\" == v8.7z.* ]];then" >> compress.sh
+        echo "echo \"Start upload \$file\"" >> compress.sh
         echo "./transfer $TRANSFER_TOOL --block 2621440 -s -p 64 --no-progress \$file 2>&1 | tee cowtransfer.log" >> compress.sh
         echo "echo \"::warning file=cowtransfer.com::\$(cat cowtransfer.log | grep https)\"" >> compress.sh
         echo "echo \$file" >> compress.sh
